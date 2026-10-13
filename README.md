@@ -45,7 +45,7 @@ Each script writes the figure as PNG, PDF and SVG to its own folder, or to the f
 | Supplementary Fig. 13 | Upgrade-location sensitivity | SFig13_upgrade_sensitivity/make_sfig13_upgrade_sensitivity.py | sensitivity/upgrade_locations, roads, naturalearth |
 | Supplementary Fig. 14 | Urban-cluster sensitivity | SFig14_urban_cluster_sensitivity/make_sfig14_urban_cluster_sensitivity.py | sensitivity/urban_clusters, roads, naturalearth |
 
-The scripts were run with Python 3.13, numpy 2.4, scipy 1.18, pandas 2.3, geopandas 1.2, pyogrio 0.13, shapely 2.1, pyproj 3.8, rasterio 1.5, matplotlib 3.10 and scikit-image 0.26. requirements.txt lists the packages.
+The scripts were run with Python 3.13, numpy 2.4, scipy 1.18, pandas 2.3, geopandas 1.2, pyogrio 0.13, shapely 2.1, pyproj 3.8, rasterio 1.5, matplotlib 3.10 and scikit-image 0.26. environment.yml creates a conda environment with these versions (`conda env create -f environment.yml`), and requirements.txt lists the packages for pip.
 
 ## Figure inputs
 

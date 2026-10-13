@@ -1,0 +1,22 @@
+name: road-growth-model
+channels:
+  - conda-forge
+dependencies:
+  - python=3.13
+  - numpy=2.4
+  - scipy=1.18
+  - pandas=2.3
+  - geopandas=1.2
+  - pyogrio=0.13
+  - shapely=2.1
+  - pyproj=3.8
+  - rasterio=1.5
+  - matplotlib=3.10
+  - scikit-image=0.26
+  - fiona
+  - scikit-learn
+  - networkx
+  - networkit
+  - momepy<1.0
+  - openpyxl
+  - pillow
