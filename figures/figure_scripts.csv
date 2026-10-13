@@ -4,9 +4,9 @@ Figure 2,Spatial allocation steps,Fig2_allocation_steps/make_fig2_allocation_ste
 Figure 3,Radial pattern detection and growth,Fig3_pattern_radial_schematic/make_fig3_pattern_radial_schematic.py,None
 Figure 4,"Upgrade location and length, Nigeria, 2050, SSP1",Fig4_upgrade_locations/make_fig4_upgrade_locations.py,"NGA_drivers, NGA_forecast_SSP1_2050, roads, naturalearth"
 Figure 5,"New and upgraded roads to 2050, Bangladesh, Nigeria and Brazil, SSP1",Fig5_road_growth/make_fig5_road_growth.py,"fig5_forecast, fig5_roads_2015, roads, naturalearth"
+Supplementary Fig. 3,"Total road length per country from the regression models and observed, all roads and four road classes",SFig03_obs_vs_pred/make_sfig03_obs_vs_pred.py,figures/RoadForecast_urban.xlsx
 Supplementary Fig. 4,Predicted road length and residuals,SFig04_residuals/make_sfig04_residuals.py,figures/RoadForecast_urban.xlsx
-Supplementary Fig. 5,"Observed and predicted road length, five panels in one row",SFig05_obs_vs_pred/make_sfig05_regression_one_row.py,figures/RoadForecast_urban.xlsx
-Supplementary Fig. 5,"Observed and predicted road length, larger panels with country labels",SFig05_obs_vs_pred/make_sfig05_regression_country_labels.py,figures/RoadForecast_urban.xlsx
+Supplementary Fig. 5,"Observed and predicted road length with country labels",SFig05_obs_vs_pred/make_sfig05_regression_country_labels.py,figures/RoadForecast_urban.xlsx
 Supplementary Fig. 6,"New roads to 2050 by class, Bangladesh, Nigeria and Brazil, SSP1",SFig06_new_roads_by_class/make_sfig06_new_roads_by_class.py,"fig5_forecast, fig5_roads_2015, roads, naturalearth"
 Supplementary Fig. 7,"Link consistency, Dhaka, Chattogram and Abuja",SFig07_link_consistency/make_sfig07_link_consistency.py,"SFig07_district_extracts, roads"
 Supplementary Fig. 8,"OpenStreetMap baseline coverage, Bangladesh",SFig08_baseline_coverage/make_sfig08_baseline_coverage.py,"roads, osm, naturalearth"

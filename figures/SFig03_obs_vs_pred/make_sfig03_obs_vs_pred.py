@@ -157,14 +157,14 @@ def write_tables(models, out_dir):
         for c, o, p in zip(m["country"], m["obs"], m["fit"]):
             rows.append(dict(road_class=m["label"], country=c,
                              observed_log10=o, predicted_log10=p, residual=o - p))
-    pd.DataFrame(rows).to_csv(os.path.join(out_dir, "SFig05_fitted_values_one_row.csv"), index=False)
+    pd.DataFrame(rows).to_csv(os.path.join(out_dir, "SFig03_fitted_values.csv"), index=False)
 
     rows = []
     for key, m in models.items():
         for name, b, s in zip(m["names"], m["beta"], m["se"]):
             rows.append(dict(road_class=m["label"], term=name, estimate=b, std_error=s,
                              n=m["n"], r2=m["r2"], adj_r2=m["adj"]))
-    pd.DataFrame(rows).to_csv(os.path.join(out_dir, "SFig05_model_summary_one_row.csv"), index=False)
+    pd.DataFrame(rows).to_csv(os.path.join(out_dir, "SFig03_model_summary.csv"), index=False)
 
 
 def main():
@@ -181,7 +181,7 @@ def main():
     for m in models.values():
         print(f"{m['label']:<16} n={m['n']:<4d} R2={m['r2']:.4f}  adj R2={m['adj']:.4f}")
     write_tables(models, a.out)
-    make_figure(models, os.path.join(a.out, "SFig05_obs_vs_pred_one_row"), a.label_top)
+    make_figure(models, os.path.join(a.out, "SFig03_obs_vs_pred"), a.label_top)
     print("Wrote figure and tables to", os.path.abspath(a.out))
 
 
