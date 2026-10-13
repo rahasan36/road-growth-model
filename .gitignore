@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+figures/*/*.svg
+figures/*/*.csv
+figures/*/*_r[0-9]*.*
+figures/*/lines/
+data/model_inputs/
+spatial_distribution/output_data/

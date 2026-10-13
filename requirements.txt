@@ -1,0 +1,17 @@
+numpy
+scipy
+pandas
+geopandas
+shapely
+fiona
+rasterio
+scikit-image
+scikit-learn
+networkx
+networkit
+momepy<1.0
+matplotlib
+pyproj
+pyogrio
+openpyxl
+pillow

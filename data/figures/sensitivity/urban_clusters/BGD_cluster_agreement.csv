@@ -1,0 +1,6 @@
+resolution_m,jaccard_vs_300m,centroid_match_1km,centroid_match_3km,centroid_match_5km,mean_matched_dist_m,cluster_count_ratio
+30,0.4425,68.8,87.1,90.3,302.8,1.269
+100,0.5388,87.1,92.5,94.6,166.6,0.882
+300,1.0,100.0,100.0,100.0,0.0,1.0
+500,0.2623,95.7,98.9,100.0,267.6,4.903
+1000,0.0604,53.8,76.3,88.2,454.3,3.817

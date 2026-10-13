@@ -1,0 +1,18 @@
+figure,content,script,inputs
+Figure 1,Road growth modeling framework,Fig1_framework/make_fig1_framework.py,None
+Figure 2,Spatial allocation steps,Fig2_allocation_steps/make_fig2_allocation_steps.py,"figures/Fig2_allocation_steps/thumbnails, BGD_drivers_osm15, roads"
+Figure 3,Radial pattern detection and growth,Fig3_pattern_radial_schematic/make_fig3_pattern_radial_schematic.py,None
+Figure 4,"Upgrade location and length, Nigeria, 2050, SSP1",Fig4_upgrade_locations/make_fig4_upgrade_locations.py,"NGA_drivers, NGA_forecast_SSP1_2050, roads, naturalearth"
+Figure 5,"New and upgraded roads to 2050, Bangladesh, Nigeria and Brazil, SSP1",Fig5_road_growth/make_fig5_road_growth.py,"fig5_forecast, fig5_roads_2015, roads, naturalearth"
+Supplementary Fig. 4,Predicted road length and residuals,SFig04_residuals/make_sfig04_residuals.py,figures/RoadForecast_urban.xlsx
+Supplementary Fig. 5,"Observed and predicted road length, five panels in one row",SFig05_obs_vs_pred/make_sfig05_regression_one_row.py,figures/RoadForecast_urban.xlsx
+Supplementary Fig. 5,"Observed and predicted road length, larger panels with country labels",SFig05_obs_vs_pred/make_sfig05_regression_country_labels.py,figures/RoadForecast_urban.xlsx
+Supplementary Fig. 6,"New roads to 2050 by class, Bangladesh, Nigeria and Brazil, SSP1",SFig06_new_roads_by_class/make_sfig06_new_roads_by_class.py,"fig5_forecast, fig5_roads_2015, roads, naturalearth"
+Supplementary Fig. 7,"Link consistency, Dhaka, Chattogram and Abuja",SFig07_link_consistency/make_sfig07_link_consistency.py,"SFig07_district_extracts, roads"
+Supplementary Fig. 8,"OpenStreetMap baseline coverage, Bangladesh",SFig08_baseline_coverage/make_sfig08_baseline_coverage.py,"roads, osm, naturalearth"
+Supplementary Fig. 9,"Precision, recall and F1",SFig09_precision_recall_F1/make_sfig09_precision_recall_f1.py,validation/metrics
+Supplementary Fig. 10,"Spatial classification of all roads, Bangladesh",SFig10_BGD_spatial_classification/make_sfig10_allroads_spatial.py,"roads, osm, BGD_forecast_osm15_baseline, naturalearth"
+Supplementary Fig. 11,Commission and omission case studies,SFig11_commission_omission/make_sfig11_case_studies.py,validation
+Supplementary Fig. 12,Padma Bridge,SFig12_Padma_Bridge/make_sfig12_padma.py,"roads, validation, osm"
+Supplementary Fig. 13,Upgrade-location sensitivity,SFig13_upgrade_sensitivity/make_sfig13_upgrade_sensitivity.py,"sensitivity/upgrade_locations, roads, naturalearth"
+Supplementary Fig. 14,Urban-cluster sensitivity,SFig14_urban_cluster_sensitivity/make_sfig14_urban_cluster_sensitivity.py,"sensitivity/urban_clusters, roads, naturalearth"
