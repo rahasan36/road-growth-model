@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use this code or data, please cite it as below."
+title: "Code and data for: A location-based model for forecasting hierarchical road network growth"
+type: software
+authors:
+  - family-names: Ahasan
+    given-names: Rakibul
+    orcid: "https://orcid.org/0000-0003-4772-8499"
+  - family-names: Güneralp
+    given-names: Burak
+    orcid: "https://orcid.org/0000-0002-5825-0630"
+  - family-names: Abeer
+    given-names: A N M Nafiz
+    orcid: "https://orcid.org/0009-0004-8134-1604"
+repository-code: "https://github.com/rahasan36/road-growth-model"
+license: CC-BY-NC-ND-4.0
+date-released: 2026-10-13
+keywords:
+  - road network growth
+  - spatial allocation
+  - shared socioeconomic pathways
+  - urbanization
+  - land use change
+  - road network modeling
+  - spatial modeling
