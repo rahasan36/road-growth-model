@@ -37,7 +37,7 @@ BOXES = [
 ]
 C_GRID, C_NUM = "#767171", "#FFC000"
 BOX_LW, GRID_LW = 1.1, 0.4
-MAX_CENTRES = 8
+MAX_CENTERS = 8
 SMOOTH_KM = 12
 FS, FS_LETTER, FS_TITLE = 7.0, 12.0, 7.0
 STACK_X, STACK_Y, STACK_W, STACK_H = 1.0, 15.0, 40.0, 61.0
@@ -200,10 +200,10 @@ def main():
         Tu, crs_u = src.transform, src.crs
     lab, n = ndimage.label(u, structure=np.ones((3, 3)))
     sizes = ndimage.sum(u, lab, range(1, n + 1))
-    top = np.argsort(-sizes)[:MAX_CENTRES] + 1
+    top = np.argsort(-sizes)[:MAX_CENTERS] + 1
     cents = ndimage.center_of_mass(u, lab, top)
     tfu = Transformer.from_crs(crs_u, DST, always_xy=True)
-    centres = [(tfu.transform(Tu.c + (c + 0.5) * Tu.a, Tu.f + (r + 0.5) * Tu.e), np.sqrt(s)) for (r, c), s in
+    centers = [(tfu.transform(Tu.c + (c + 0.5) * Tu.a, Tu.f + (r + 0.5) * Tu.e), np.sqrt(s)) for (r, c), s in
                zip(cents, sizes[top - 1])]
 
     urb_rgba = np.zeros((G.ny, G.nx, 4))
@@ -218,7 +218,7 @@ def main():
     r0s, r1s = int((G.ext[3] - lb[3]) // CELL), int(np.ceil((G.ext[3] - lb[1]) / CELL))
     stack_layers = [L[r0s:r1s, c0s:c1s] for L in layers]
     stack_ext = (G.ext[0] + c0s * CELL, G.ext[0] + c1s * CELL, G.ext[3] - r1s * CELL, G.ext[3] - r0s * CELL)
-    labels = ["Urban\ncentres", "Road\ndensity", "Population\ndensity", "Proximity to\nurban centres"]
+    labels = ["Urban\ncenters", "Road\ndensity", "Population\ndensity", "Proximity to\nurban centers"]
 
     allr = G.warp(os.path.join(a.run_dir, "NGA_SSP1_since2015_2050_all.tif"), Resampling.max, band=5, nodata=0)
     upg = G.warp(os.path.join(a.run_dir, "NGA_SSP1_since2015_2050_upgraded.tif"), Resampling.max, band=5, nodata=0)
@@ -254,7 +254,7 @@ def main():
     A = np.array([STACK_X, STACK_Y + abs(eu[1])])
     gx0, gx1, gy0, gy1 = stack_ext
     drawn = []
-    for (x, y), rpx in centres:
+    for (x, y), rpx in centers:
         uu, vv = (x - gx0) / (gx1 - gx0), (gy1 - y) / (gy1 - gy0)
         p = A + eu + uu * ev - vv * eu
         r = 0.8 + 0.010 * rpx

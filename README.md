@@ -13,7 +13,7 @@ The folder spatial_distribution holds the MATLAB code of the spatial allocation 
 
    for all three scenarios and years, or for example run_country('NGA', 1, 2050) for one. The arguments after the country are the scenarios, the years, the inputs folder, the demand file and the output folder.
 
-Each run starts from the network at the start of its period, which the input folder holds as `<ISO3>_road_types.tif` (the 2015 network for 2030, the forecast of the previous period for 2040 and 2050). The settings are those of the forecasts in the paper: distance-based selection ('dist_only'), radial growth on, points of interest off and random seed 42. The outputs are written to `spatial_distribution/output_data/<ISO3>/SSP<s>/<year>/`, with the forecast network in `<ISO3>_all_final_roads.tif`. The model needs MATLAB with the Mapping Toolbox (geotiffread, geotiffwrite) and the Statistics and Machine Learning Toolbox (dbscan).
+Each run starts from the network at the start of its period, which the input folder holds as `<ISO3>_road_types.tif` (the 2015 network for 2030, the forecast of the previous period for 2040 and 2050). The settings are those of the forecasts in the paper: distance-based selection ('dist_only'), radial growth on, points of interest off and random seed 42. The input folders also hold `<ISO3>_height.tif`, building height from Li et al. (2020), which the model can use to weight the urban clusters (selection modes 'dist_height_combo' and 'dist_pop_height_combo'). The forecasts select urban clusters by distance only, so building height does not affect them. The outputs are written to `spatial_distribution/output_data/<ISO3>/SSP<s>/<year>/`, with the forecast network in `<ISO3>_all_final_roads.tif`. The model needs MATLAB with the Mapping Toolbox (geotiffread, geotiffwrite) and the Statistics and Machine Learning Toolbox (dbscan).
 
 The forecasts on Zenodo were produced by a Python implementation of this model with the same inputs, settings and seed. Because the two implementations draw different random sequences, a MATLAB run allocates the same road demand but may place some roads in different cells.
 
@@ -31,11 +31,11 @@ Each script writes the figure as PNG, PDF and SVG to its own folder, or to the f
 | Figure 2 | Spatial allocation steps | Fig2_allocation_steps/make_fig2_allocation_steps.py | figures/Fig2_allocation_steps/thumbnails, BGD_drivers_osm15, roads |
 | Figure 3 | Radial pattern detection and growth | Fig3_pattern_radial_schematic/make_fig3_pattern_radial_schematic.py | None |
 | Figure 4 | Upgrade location and length, Nigeria, 2050, SSP1 | Fig4_upgrade_locations/make_fig4_upgrade_locations.py | NGA_drivers, NGA_forecast_SSP1_2050, roads, naturalearth |
-| Figure 5 | New and upgraded roads to 2050, Bangladesh, Nigeria and Brazil, SSP1 | Fig5_road_growth/make_fig5_road_growth.py | fig5_forecast, fig5_roads_2015, roads, naturalearth |
+| Figure 5 | New and upgraded roads to 2050, Bangladesh, Brazil and Nigeria, SSP1, SSP3 and SSP5 | Fig5_road_growth/make_fig5_road_growth.py | fig5_forecast, fig5_roads_2015, roads, naturalearth |
 | Supplementary Fig. 3 | Total road length per country from the regression models and observed, all roads and four road classes | SFig03_obs_vs_pred/make_sfig03_obs_vs_pred.py | figures/RoadForecast_urban.xlsx |
 | Supplementary Fig. 4 | Predicted road length and residuals | SFig04_residuals/make_sfig04_residuals.py | figures/RoadForecast_urban.xlsx |
 | Supplementary Fig. 5 | Observed and predicted road length with country labels | SFig05_obs_vs_pred/make_sfig05_regression_country_labels.py | figures/RoadForecast_urban.xlsx |
-| Supplementary Fig. 6 | New roads to 2050 by class, Bangladesh, Nigeria and Brazil, SSP1 | SFig06_new_roads_by_class/make_sfig06_new_roads_by_class.py | fig5_forecast, fig5_roads_2015, roads, naturalearth |
+| Supplementary Fig. 6 | New roads to 2050 by class, Bangladesh, Brazil and Nigeria, SSP1, SSP3 and SSP5 | SFig06_new_roads_by_class/make_sfig06_new_roads_by_class.py | fig5_forecast, fig5_roads_2015, roads, naturalearth |
 | Supplementary Fig. 7 | Link consistency, Dhaka, Chattogram and Abuja | SFig07_link_consistency/make_sfig07_link_consistency.py | SFig07_district_extracts, roads |
 | Supplementary Fig. 8 | OpenStreetMap baseline coverage, Bangladesh | SFig08_baseline_coverage/make_sfig08_baseline_coverage.py | roads, osm, naturalearth |
 | Supplementary Fig. 9 | Precision, recall and F1 | SFig09_precision_recall_F1/make_sfig09_precision_recall_f1.py | validation/metrics |
