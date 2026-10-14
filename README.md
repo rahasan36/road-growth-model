@@ -1,21 +1,21 @@
-This repository accompanies the paper "A location-based model for forecasting hierarchical road network growth", which forecasts road length by road class from socioeconomic trajectories and allocates the forecast roads spatially through radial pattern growth, hierarchical upgrading and linear growth, with case studies of Bangladesh, Brazil and Nigeria under SSP1, SSP3 and SSP5 for 2030, 2040 and 2050. It includes the MATLAB code of the spatial allocation model with the road demand of every forecast run, the Python scripts for the spatial validation against OpenStreetMap, the network reliability metrics, the growth rates and the sensitivity analyses, and the scripts that draw the figures of the paper and its Supplementary Information, with the figures they draw.
+This repository accompanies the paper "A location-based model for forecasting hierarchical road network growth", which forecasts road length by road class from socioeconomic trajectories and allocates the forecast roads spatially through radial pattern growth, hierarchical upgrading and linear growth, with case studies of Bangladesh, Brazil and Nigeria under SSP1, SSP3 and SSP5 for 2030, 2040 and 2050. It includes the MATLAB and Python code of the spatial allocation model with the road demand of every forecast run, the Python scripts for the spatial validation against OpenStreetMap, the network reliability metrics, the growth rates and the sensitivity analyses, and the scripts that draw the figures of the paper and its Supplementary Information, with the figures they draw.
 
-The forecast networks, the 2015 road network and the input rasters of every model run are on Zenodo, [Zenodo DOI].
+The forecast networks, the 2015 road network and the input rasters of every model run are on Zenodo, https://doi.org/10.5281/zenodo.23333891.
 
 ## Spatial allocation model
 
-The folder spatial_distribution holds the MATLAB code of the spatial allocation model. run_country.m runs the model for one country, any of SSP1, SSP3 and SSP5 and any of 2030, 2040 and 2050, with the road demand in data/road_demand_published.csv (road length added by class in each period, in km) and the input rasters from Zenodo.
+The folder spatial_distribution_python holds the Python implementation of the spatial allocation model, which produced the forecasts in the paper, and the folder spatial_distribution holds the MATLAB code. Both run the model for one country, any of SSP1, SSP3 and SSP5 and any of 2030, 2040 and 2050, with the road demand in data/road_demand_published.csv (road length added by class in each period, in km) and the input rasters from Zenodo.
 
 1. Download `model_inputs_<ISO3>.zip` (for Brazil, model_inputs_BRA_SSP1.zip, model_inputs_BRA_SSP3.zip and model_inputs_BRA_SSP5.zip) from Zenodo and unzip it into data, which gives `data/model_inputs/<ISO3>/SSP<s>/<year>/`.
-2. In MATLAB, change to spatial_distribution and run
+2. From the repository folder, run
 
-        run_country('BGD')
+        python spatial_distribution_python/run_country.py BGD
 
-   for all three scenarios and years, or for example run_country('NGA', 1, 2050) for one. The arguments after the country are the scenarios, the years, the inputs folder, the demand file and the output folder.
+   for all three scenarios and years, or for example `python spatial_distribution_python/run_country.py NGA --ssp 1 --years 2050` for one. In MATLAB, change to spatial_distribution and run `run_country('BGD')` or `run_country('NGA', 1, 2050)`.
 
-Each run starts from the network at the start of its period, which the input folder holds as `<ISO3>_road_types.tif` (the 2015 network for 2030, the forecast of the previous period for 2040 and 2050). The settings are those of the forecasts in the paper: distance-based selection ('dist_only'), radial growth on, points of interest off and random seed 42. The input folders also hold `<ISO3>_height.tif`, building height from Li et al. (2020), which the model can use to weight the urban clusters (selection modes 'dist_height_combo' and 'dist_pop_height_combo'). The forecasts select urban clusters by distance only, so building height does not affect them. The outputs are written to `spatial_distribution/output_data/<ISO3>/SSP<s>/<year>/`, with the forecast network in `<ISO3>_all_final_roads.tif`. The model needs MATLAB with the Mapping Toolbox (geotiffread, geotiffwrite) and the Statistics and Machine Learning Toolbox (dbscan).
+Each run starts from the network at the start of its period, which the input folder holds as `<ISO3>_road_types.tif` (the 2015 network for 2030, the forecast of the previous period for 2040 and 2050). The settings are those of the forecasts in the paper: distance-based selection ('dist_only'), radial growth on, points of interest off and random seed 42. The input folders also hold `<ISO3>_height.tif`, building height from Li et al. (2020), which the model can use to weight the urban clusters (selection modes 'dist_height_combo' and 'dist_pop_height_combo'). The forecasts select urban clusters by distance only, so building height does not affect them. The Python outputs are written to `spatial_distribution_python/output_data/<ISO3>/SSP<s>/<year>/` and the MATLAB outputs to `spatial_distribution/output_data/<ISO3>/SSP<s>/<year>/`, with the forecast network in `<ISO3>_all_final_roads.tif`. The MATLAB code needs the Mapping Toolbox (geotiffread, geotiffwrite) and the Statistics and Machine Learning Toolbox (dbscan).
 
-The forecasts on Zenodo were produced by a Python implementation of this model with the same inputs, settings and seed. Because the two implementations draw different random sequences, a MATLAB run allocates the same road demand but may place some roads in different cells.
+In the Python implementation, a road cell that has been upgraded to a higher class keeps that class when a later step of the same period upgrades the roads of a lower class. Because the two implementations draw different random sequences, a MATLAB run allocates the same road demand but may place some roads in different cells.
 
 ## Figures
 
@@ -45,23 +45,23 @@ Each script writes the figure as PNG, PDF and SVG to its own folder, or to the f
 | Supplementary Fig. 13 | Upgrade-location sensitivity | SFig13_upgrade_sensitivity/make_sfig13_upgrade_sensitivity.py | sensitivity/upgrade_locations, roads, naturalearth |
 | Supplementary Fig. 14 | Urban-cluster sensitivity | SFig14_urban_cluster_sensitivity/make_sfig14_urban_cluster_sensitivity.py | sensitivity/urban_clusters, roads, naturalearth |
 
-The scripts were run with Python 3.13, numpy 2.4, scipy 1.18, pandas 2.3, geopandas 1.2, pyogrio 0.13, shapely 2.1, pyproj 3.8, rasterio 1.5, matplotlib 3.10 and scikit-image 0.26. environment.yml creates a conda environment with these versions (`conda env create -f environment.yml`), and requirements.txt lists the packages for pip.
+The scripts were run with Python 3.13, numpy 2.4, scipy 1.18, pandas 2.3, geopandas 1.2, pyogrio 0.13, shapely 2.1, pyproj 3.8, rasterio 1.5, matplotlib 3.10, scikit-image 0.26, networkx and networkit. environment.yml creates a conda environment with these versions (`conda env create -f environment.yml`), and requirements.txt lists the packages for pip.
 
 ## Figure inputs
 
 | Folder in data/figures | Contents |
 |---|---|
 | roads | District boundaries of Bangladesh and Nigeria (bgd_dist, nga_dist). The 2030 SSP1 forecast raster of Bangladesh, which the scripts use as the 300 m reference grid. The GRIP 2015 road network of Bangladesh (bgd_roads_2015, with the road-type attribute GP_RTP only). |
-| fig5_forecast | New and upgraded roads from 2015 to 2050 of Bangladesh, Nigeria and Brazil under SSP1, SSP3 and SSP5 (`<ISO3>_SSP<s>_since2015_2050_new.tif` and `_upgraded.tif`, band 5 holds the road class), as on Zenodo. |
+| fig5_forecast | New and upgraded roads from 2015 to 2050 of Bangladesh, Nigeria and Brazil under SSP1, SSP3 and SSP5 (`<ISO3>_SSP<s>_since2015_2050_new.tif` and `_upgraded.tif`, band 5 holds the road class). |
 | fig5_roads_2015 | GRIP 2015 road network of Bangladesh, Nigeria and Brazil in the map projection of each country, with the model road class k (1 main, 2 secondary, 3 tertiary, 4 local), as zipped FlatGeobuf parts (`<ISO3>_roads_2015.part<n>.fgb.zip`). |
-| SFig07_district_extracts | The features of the GRIP 2015 network and the 2050 forecast networks (SSP1, SSP3 and SSP5) of Bangladesh and Nigeria that intersect Dhaka, Chattogram and Abuja Municipal. These are the features the script keeps before it clips the networks to the districts. |
+| SFig07_district_extracts | The features of the GRIP 2015 network and of the 2050 forecast networks (SSP1, SSP3 and SSP5) of Bangladesh and Nigeria that intersect Dhaka, Chattogram and Abuja Municipal. The 2050 networks are converted from the forecast rasters by reliability/network_metrics.py. |
 | osm | Geofabrik extracts of Bangladesh of 1 January 2015 and 6 June 2026. Roads of the classes used in the validation, with the class attribute (fclass) only, and the national boundary from the 2026 administrative areas. |
 | naturalearth | Natural Earth 1:10m admin-0 countries, Bangladesh and Nigeria (used by Figure 4 and Supplementary Figs 8, 10 and 13) and Bangladesh, Nigeria and Brazil (used by Figure 5 and Supplementary Fig. 6), to trim the district boundaries to the coastline and to outline Brazil. |
-| BGD_drivers_osm15 | Driver rasters of Bangladesh used in the run from the OSM 2015 baseline: urban extent, population density, road density, distance to roads, distance to urban areas and building height. |
-| BGD_forecast_osm15_baseline | Forecast network of Bangladesh from the OSM 2015 baseline. |
+| BGD_drivers_osm15 | Driver rasters of Bangladesh drawn in Figure 2: urban extent, population density, road density, distance to roads, distance to urban areas and building height. |
+| BGD_forecast_osm15_baseline | Forecast network of Bangladesh for 2030 under SSP1 from the OSM 2015 baseline. |
 | NGA_drivers | Driver rasters of Nigeria: urban extent, road density and distance to urban areas, and the 2020 SSP1 population density. |
 | NGA_forecast_SSP1_2050 | Forecast network of Nigeria for 2050 under SSP1, all roads and upgraded roads (band 5 holds the road class). |
-| validation | Classification raster of Bangladesh at 300 m (true positives, false positives and false negatives), and the precision, recall and F1 tables of Bangladesh, Brazil and Nigeria (metrics). |
+| validation | Classification raster of Bangladesh at 300 m (true positives, commission and omission), and the precision, recall and F1 tables of Bangladesh, Brazil and Nigeria (metrics), written by validation/validate_forecast.py. |
 | sensitivity | Upgrade locations found at 100, 300 and 1,000 m (upgrade_locations), and urban clusters at 30, 100, 300, 500 and 1,000 m with their metrics and agreement tables (urban_clusters). |
 
 Large vector layers are stored as zipped files. The GRIP 2015 networks and the 2026 OpenStreetMap roads are split by rows into parts below 25 MB (`<name>.part1.shp.zip`, `<name>.part2.shp.zip`, ... and `<ISO3>_roads_2015.part<n>.fgb.zip`), and the scripts read the parts in order and join them. Only the attributes the scripts use are kept. Geometries and feature order are unchanged, and the scripts reproduce the published figures from these files.
@@ -70,13 +70,19 @@ Large vector layers are stored as zipped files. The GRIP 2015 networks and the 2
 
 | Folder | Contents |
 |---|---|
-| validation | Spatial validation of the forecast networks against OpenStreetMap for Bangladesh, Brazil and Nigeria (scripts 01 to 19): precision, recall and F1 from two baselines, locational accuracy, convergence points, the no-growth benchmarks and the exports of the validation layers. |
-| reliability | Network reliability metrics of the observed and forecast networks and their comparison. |
+| validation | Spatial validation of the 2030 SSP1 forecasts against OpenStreetMap. osm_history_raster.py rasterizes the OpenStreetMap roads of a given date from the ohsome API onto the model grid (used for Brazil and Nigeria). build_osm2015_baseline.py builds the Bangladesh model inputs with OSM 2015 in place of GRIP. validate_forecast.py computes the baseline comparison, the per-cell and two-sided metrics, the centerline and convergence-point metrics, the new-roads assessment, the no-growth benchmark and the regional case studies (Supplementary Tables 11 to 17). validation_metrics.py holds the metric functions. |
+| reliability | raster_to_network.py converts a forecast raster to a line network. network_metrics.py computes the intersections and segments by class, the reliability metrics, the fractal dimension and the administrative-unit intersection density of the 2015 and forecast networks (Supplementary Tables 5 and 8 to 10), and writes the district extracts of Supplementary Fig. 7. It uses calculate_additional_metrics from analyze_road_network_scenarios.py. |
 | growth_rates | Annual growth rates and class shares of road length by country, SSP and year, from a table of road lengths by class. |
-| sensitivity | Sensitivity of the upgrade locations and of the urban clusters to the grid resolution. |
+| sensitivity | Sensitivity of the upgrade locations (2030 SSP5 demand from data/road_demand_published.csv) and of the urban clusters to the grid resolution (Supplementary Tables 18 and 19). |
 
-The analysis scripts read their data from the folder data, or from the folder named by the environment variable ROAD_DATA, and their arguments point them to other copies.
+For example, with the model runs unzipped from Zenodo into data/runs (`data/runs/<ISO3>/SSP<s>/<year>/input` and `output`),
+
+    python validation/validate_forecast.py BGD --osm2015 data/figures/osm/bangladesh-150101-free.shp --osm2026 data/figures/osm/bangladesh-260606-free.shp --osm15_run data/runs_osm2015/BGD/SSP1/2030
+    python validation/osm_history_raster.py --iso3 NGA --countries data/figures/naturalearth/ne_10m_admin_0_countries_BGD_NGA_BRA.shp --grid data/runs/NGA/SSP1/2030/input/NGA_slope.tif --date 2026-06-06 --out data/osm/NGA_osm_2026-06-06.tif
+    python reliability/network_metrics.py NGA --admin data/figures/roads/nga_dist.shp --extract_crs data/figures/SFig07_district_extracts/nga_roads_2015.shp.zip
+
+The sensitivity scripts read their data from the folder data, or from the folder named by the environment variable ROAD_DATA.
 
 ## Sources
 
-OpenStreetMap data © OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0, from Geofabrik (https://download.geofabrik.de). GRIP road network from the Global Roads Inventory Project, GRIP4 (Meijer et al. 2018, Environmental Research Letters 13, 064006, https://www.globio.info/download-grip-dataset), available under the Creative Commons Attribution 4.0 International License (CC BY 4.0). Country boundaries from Natural Earth (https://www.naturalearthdata.com), which is in the public domain. The data in data/figures keep the licenses of their sources.
+OpenStreetMap data © OpenStreetMap contributors, available under the Open Database License (ODbL) 1.0, from Geofabrik (https://download.geofabrik.de) and the ohsome API (https://api.ohsome.org). GRIP road network from the Global Roads Inventory Project, GRIP4 (Meijer et al. 2018, Environmental Research Letters 13, 064006, https://www.globio.info/download-grip-dataset), available under the Creative Commons Attribution 4.0 International License (CC BY 4.0). Country boundaries from Natural Earth (https://www.naturalearthdata.com), which is in the public domain. The data in data/figures keep the licenses of their sources.

@@ -17,25 +17,13 @@ warnings.filterwarnings("ignore", category=rasterio.errors.NotGeoreferencedWarni
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
-FORECASTS = {
-    (2030, "SSP1"): {"main": 32203-13272, "secondary": 39954-21723, "tertiary": 137497-137497, "local": 20834-10825},
-    (2030, "SSP3"): {"main": 27371-13272, "secondary": 35958-21723, "tertiary": 137497-137497, "local": 16913-10825},
-    (2030, "SSP5"): {"main": 33639-13272, "secondary": 43179-21723, "tertiary": 368437-137497, "local": 25908-10825},
-    (2040, "SSP1"): {"main": 39374-13272, "secondary": 44577-21723, "tertiary": 137497-137497, "local": 28052-10825},
-    (2040, "SSP3"): {"main": 30813-13272, "secondary": 40089-21723, "tertiary": 137497-137497, "local": 19805-10825},
-    (2040, "SSP5"): {"main": 42324-13272, "secondary": 48995-21723, "tertiary": 368437-137497, "local": 38341-10825},
-    (2050, "SSP1"): {"main": 46184-13272, "secondary": 47341-21723, "tertiary": 137497-137497, "local": 36010-10825},
-    (2050, "SSP3"): {"main": 41021-13272, "secondary": 56481-21723, "tertiary": 137497-137497, "local": 25926-10825},
-    (2050, "SSP5"): {"main": 51217-13272, "secondary": 53164-21723, "tertiary": 368437-137497, "local": 54705-10825},
-}
-
-
-def get_growth_per_type(year: int, scenario: str) -> List[float]:
-    key = (year, scenario)
-    if key not in FORECASTS:
-        raise ValueError(f"No forecast for {key}. Available: {list(FORECASTS.keys())}")
-    f = FORECASTS[key]
-    return [f["main"]/2, f["main"]/2, f["secondary"], f["tertiary"], f["local"]]
+def get_growth_per_type(year: int, scenario: str, country: str = "BGD") -> List[float]:
+    d = pd.read_csv(os.path.join(DATA, "road_demand_published.csv"))
+    r = d[(d.country == country) & (d.ssp == scenario) & (d.year == year)]
+    if len(r) != 1:
+        raise ValueError(f"No road demand for {country} {scenario} {year}")
+    r = r.iloc[0]
+    return [r.main_km / 2, r.main_km / 2, r.secondary_km, r.tertiary_km, r.local_km]
 
 
 CITIES = {
@@ -70,7 +58,7 @@ class Config:
 
     @property
     def input_dir(self) -> str:
-        return os.path.join(self.base_dir, "Processed", self.country, f"scenario_{self.scenario}")
+        return os.path.join(self.base_dir, "model_inputs", self.country, f"SSP{self.scenario}", "2030")
 
 
 def compute_crop_bbox(crs) -> Tuple[float, float, float, float]:
@@ -300,7 +288,7 @@ def run_upgrade_analysis(cfg: Config):
     os.makedirs(cfg.output_dir, exist_ok=True)
     rng = np.random.default_rng(cfg.seed)
 
-    growth_km = get_growth_per_type(cfg.forecast_year, cfg.forecast_scenario)
+    growth_km = get_growth_per_type(cfg.forecast_year, cfg.forecast_scenario, cfg.country)
 
     print("=" * 72)
     print("Road Upgrade Location Sensitivity — Bangladesh (BGD)")

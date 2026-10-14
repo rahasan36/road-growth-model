@@ -7,3 +7,4 @@ figures/*/lines/
 data/model_inputs/
 spatial_distribution/output_data/
 .vscode/
+spatial_distribution_python/output_data/

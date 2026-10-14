@@ -11,6 +11,7 @@ from matplotlib import font_manager
 from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch, Rectangle
 from pyproj import Transformer
+from rasterio.warp import Resampling, reproject
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
@@ -37,6 +38,31 @@ plt.rcParams.update({
     "xtick.color": "black", "ytick.color": "black",
     "pdf.fonttype": 42, "svg.fonttype": "none", "savefig.facecolor": "white",
 })
+
+
+DST = "ESRI:102953"
+
+
+def upright(arrays, T, crs, bounds, res=300.0):
+    l, b, r, t = bounds
+    w, h = int(np.ceil((r - l) / res)), int(np.ceil((t - b) / res))
+    fine_T = rasterio.transform.from_origin(l, t, res / 2, res / 2)
+    out = []
+    for a in arrays:
+        fine = np.zeros((2 * h, 2 * w), np.uint8)
+        reproject(np.asarray(a, np.uint8), fine, src_transform=T, src_crs=crs, dst_transform=fine_T, dst_crs=DST,
+                  resampling=Resampling.nearest)
+        blk = fine.reshape(h, 2, w, 2).transpose(0, 2, 1, 3).reshape(h, w, 4)
+        n = max(int(blk.max()), 1)
+        cnt = np.stack([(blk == v).sum(-1) for v in range(1, n + 1)], -1)
+        out.append(np.where(cnt.max(-1) > 0, cnt.argmax(-1) + 1, 0).astype(np.uint8))
+    return out, rasterio.transform.from_origin(l, t, res, res), (h, w)
+
+
+def centres(arr, T, crs):
+    r, c = np.nonzero(arr)
+    x, y = Transformer.from_crs(crs, DST, always_xy=True).transform(T.c + (c + 0.5) * T.a, T.f + (r + 0.5) * T.e)
+    return x, y, arr[r, c]
 
 
 def degree_ticks(ax, tf, step=0.1):
@@ -68,20 +94,18 @@ def main():
 
     with rasterio.open(a.tpfpfn) as src:
         cls, T, crs, (H0, W0) = src.read(1), src.transform, src.crs, src.shape
-    px = abs(T.a)
-    to_proj = Transformer.from_crs("EPSG:4326", crs, always_xy=True)
-    to_geo = Transformer.from_crs(crs, "EPSG:4326", always_xy=True)
+    to_proj = Transformer.from_crs("EPSG:4326", DST, always_xy=True)
+    to_geo = Transformer.from_crs(DST, "EPSG:4326", always_xy=True)
+    cx, cy, cv = centres(cls, T, crs)
 
     panels, rows = [], []
     for letter, name, lat, lon, rad_km in REGIONS:
         x, y = to_proj.transform(lon, lat)
-        c, r = ~T * (x, y)
-        c, r = int(c), int(r)
-        R = int(rad_km * 1000 / px)
-        r0, r1, c0, c1 = max(0, r - R), min(H0, r + R), max(0, c - R), min(W0, c + R)
-        crop = cls[r0:r1, c0:c1]
-        ext = (T.c + c0 * T.a, T.c + c1 * T.a, T.f + r1 * T.e, T.f + r0 * T.e)
-        tp, fp, fn = (int((crop == k).sum()) for k in (1, 2, 3))
+        R = rad_km * 1000.0
+        ext = (x - R, x + R, y - R, y + R)
+        (crop,), _, _ = upright([cls], T, crs, (x - R, y - R, x + R, y + R))
+        inw = (cx >= x - R) & (cx < x + R) & (cy >= y - R) & (cy < y + R)
+        tp, fp, fn = (int((cv[inw] == k).sum()) for k in (1, 2, 3))
         print(f"{name}: TP {tp:,}  commission {fp:,}  omission {fn:,}")
         rows.append(dict(panel=letter, region=name, centre_lat=lat, centre_lon=lon, radius_km=rad_km,
                          true_positive=tp, commission=fp, omission=fn))

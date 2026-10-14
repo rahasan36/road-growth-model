@@ -17,6 +17,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch, Rectangle
 from pyproj import Transformer
+from rasterio.warp import Resampling, reproject
 from shapely.geometry import Point, box
 
 warnings.filterwarnings("ignore")
@@ -65,6 +66,31 @@ plt.rcParams.update({
 HALO = [pe.withStroke(linewidth=2.0, foreground="white")]
 
 
+DST = "ESRI:102953"
+
+
+def upright(arrays, T, crs, bounds, res=300.0):
+    l, b, r, t = bounds
+    w, h = int(np.ceil((r - l) / res)), int(np.ceil((t - b) / res))
+    fine_T = rasterio.transform.from_origin(l, t, res / 2, res / 2)
+    out = []
+    for a in arrays:
+        fine = np.zeros((2 * h, 2 * w), np.uint8)
+        reproject(np.asarray(a, np.uint8), fine, src_transform=T, src_crs=crs, dst_transform=fine_T, dst_crs=DST,
+                  resampling=Resampling.nearest)
+        blk = fine.reshape(h, 2, w, 2).transpose(0, 2, 1, 3).reshape(h, w, 4)
+        n = max(int(blk.max()), 1)
+        cnt = np.stack([(blk == v).sum(-1) for v in range(1, n + 1)], -1)
+        out.append(np.where(cnt.max(-1) > 0, cnt.argmax(-1) + 1, 0).astype(np.uint8))
+    return out, rasterio.transform.from_origin(l, t, res, res), (h, w)
+
+
+def centres(arr, T, crs):
+    r, c = np.nonzero(arr)
+    x, y = Transformer.from_crs(crs, DST, always_xy=True).transform(T.c + (c + 0.5) * T.a, T.f + (r + 0.5) * T.e)
+    return x, y, arr[r, c]
+
+
 def degree_ticks(ax, tf, step=0.1, label_y=True):
     x0, x1 = ax.get_xlim()
     y0, y1 = ax.get_ylim()
@@ -106,19 +132,20 @@ def main():
         model, T, crs, (H0, W0) = src.read(1), src.transform, src.crs, src.shape
     with rasterio.open(a.tpfpfn) as src:
         cls = src.read(1)
-    to_proj = Transformer.from_crs("EPSG:4326", crs, always_xy=True)
-    to_geo = Transformer.from_crs(crs, "EPSG:4326", always_xy=True)
+    to_proj = Transformer.from_crs("EPSG:4326", DST, always_xy=True)
+    to_geo = Transformer.from_crs(DST, "EPSG:4326", always_xy=True)
 
     bx, by = to_proj.transform(*CENTRE)
-    c, r = ~T * (bx, by)
-    c, r = int(c), int(r)
-    R = int(RADIUS_KM * 1000 / abs(T.a))
-    r0, r1, c0, c1 = max(0, r - R), min(H0, r + R), max(0, c - R), min(W0, c + R)
-    ext = (T.c + c0 * T.a, T.c + c1 * T.a, T.f + r1 * T.e, T.f + r0 * T.e)
-    mc, tc = model[r0:r1, c0:c1], cls[r0:r1, c0:c1]
-    existing = (mc >= 1) & (mc <= 10)
-    new = (mc >= 11) & (mc <= 14)
-    tp, fp, fn = (int((tc == k).sum()) for k in (1, 2, 3))
+    R = RADIUS_KM * 1000.0
+    ext = (bx - R, bx + R, by - R, by + R)
+    (mc, tc), _, _ = upright([model, cls], T, crs, (bx - R, by - R, bx + R, by + R))
+    mx, my, mv = centres(model, T, crs)
+    tx, ty, tv = centres(cls, T, crs)
+    mw_ = (mx >= bx - R) & (mx < bx + R) & (my >= by - R) & (my < by + R)
+    tw_ = (tx >= bx - R) & (tx < bx + R) & (ty >= by - R) & (ty < by + R)
+    existing = (mv[mw_] >= 1) & (mv[mw_] <= 10)
+    new = (mv[mw_] >= 11) & (mv[mw_] <= 14)
+    tp, fp, fn = (int((tv[tw_] == k).sum()) for k in (1, 2, 3))
     print(f"existing {existing.sum():,}  new {new.sum():,}  TP {tp:,}  commission {fp:,}  omission {fn:,}")
     pd.DataFrame([dict(existing_pixels=int(existing.sum()), new_pixels=int(new.sum()),
                        true_positive=tp, commission=fp, omission=fn, buffer_m=300)]).to_csv(
@@ -128,15 +155,15 @@ def main():
     lon1, lat0 = to_geo.transform(ext[1], ext[2])
     osm = read_vector(os.path.join(a.osm2026, "gis_osm_roads_free_1.shp"),
                         bbox=box(lon0 - 0.05, lat0 - 0.05, lon1 + 0.05, lat1 + 0.05))
-    osm = osm[osm["fclass"].isin(OSM_CLASSES)].to_crs(crs)
+    osm = osm[osm["fclass"].isin(OSM_CLASSES)].to_crs(DST)
     mwy = osm[osm["fclass"].isin(["motorway", "motorway_link"])]
     mwy = mwy[mwy.geometry.distance(Point(bx, by)) < 6000]
     other = osm[~osm["fclass"].isin(["motorway", "motorway_link"])]
     ends = [to_proj.transform(*MAWA), to_proj.transform(*JAJIRA)]
 
     img_a = np.zeros(mc.shape, dtype=np.uint8)
-    img_a[existing] = 1
-    img_a[new] = 2
+    img_a[(mc >= 1) & (mc <= 10)] = 1
+    img_a[(mc >= 11) & (mc <= 14)] = 2
 
     W = 180.0
     left, gap, right = 14.0, 5.0, 1.0

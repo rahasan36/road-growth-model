@@ -36,7 +36,7 @@ class Config:
 
     @property
     def input_dir(self):
-        return os.path.join(self.base_dir, "Processed", self.country, f"scenario_{self.scenario}")
+        return os.path.join(self.base_dir, "model_inputs", self.country, f"SSP{self.scenario}", "2030")
 
     @property
     def epsilon_m(self):
@@ -93,9 +93,9 @@ def resample_raster(data, src_profile, target_res, method=Resampling.nearest):
 
 
 def save_raster(path, data, profile):
-    p = profile.copy(); p.update(dtype="float32", count=1, compress="lzw")
+    p = profile.copy(); p.update(dtype=data.dtype.name, count=1, compress="lzw", nodata=None)
     with rasterio.open(path, "w", **p) as dst:
-        dst.write(data.astype(np.float32), 1)
+        dst.write(data, 1)
 
 
 def pixel_to_map(row, col, transform):
@@ -418,14 +418,13 @@ def run_urban_cluster_sensitivity(cfg: Config):
             "std_cluster_size_px": round(centers[:, 3].std(), 1) if n_clusters > 0 else 0,
         })
 
-        if res >= 100:
-            lmap = np.zeros(grid_shape, dtype=np.float32)
-            for i, (cr, cc) in cpx.items():
-                lmap[cr, cc] = i + 1
-            out_tif = os.path.join(cfg.output_dir, f"{cfg.country}_clusters_{res}m.tif")
-            save_raster(out_tif, lmap, res_prof)
-            print(f"  → {out_tif}")
-            del lmap
+        lmap = np.zeros(grid_shape, dtype=np.uint16)
+        for i, (cr, cc) in cpx.items():
+            lmap[cr, cc] = i + 1
+        out_tif = os.path.join(cfg.output_dir, f"{cfg.country}_clusters_{res}m.tif")
+        save_raster(out_tif, lmap, res_prof)
+        print(f"  → {out_tif}")
+        del lmap
         print()
         gc.collect()
 

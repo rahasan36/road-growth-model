@@ -129,15 +129,22 @@ def panel(ax, m, letter, xlabel, ylabel, label_top):
 
 
 def make_figure(models, out_base, label_top):
-    fig, axes = plt.subplots(1, 5, figsize=(183 * MM, 46 * MM), sharey=True,
-                             gridspec_kw=dict(left=0.06, right=0.995, bottom=0.21,
-                                              top=0.93, wspace=0.10))
-    keys = ["all", "main", "secondary", "tertiary", "local"]
-    for i, (ax, key, letter) in enumerate(zip(axes, keys, "abcde")):
-        panel(ax, models[key], letter, "Observed",
-              "Predicted" if i == 0 else None, label_top)
-        if i > 0:
-            ax.tick_params(labelleft=False)
+    W, H = 183.0, 93.5
+    A, sq = 75.5, 32.75
+    left, bottom = 12.0, 12.0
+    xb = left + A + 16.0
+    xc = xb + sq + 12.0
+    yd = bottom
+    yb = bottom + sq + 10.0
+    fig = plt.figure(figsize=(W * MM, H * MM))
+
+    def box(x, y, w):
+        return fig.add_axes([x / W, y / H, w / W, w / H])
+
+    log = "log$_{\\mathregular{10}}$"
+    panel(box(left, bottom, A), models["all"], "a", f"Observed {log} road length", f"Predicted {log} road length", label_top)
+    for key, letter, x, y in [("main", "b", xb, yb), ("secondary", "c", xc, yb), ("tertiary", "d", xb, yd), ("local", "e", xc, yd)]:
+        panel(box(x, y, sq), models[key], letter, "Observed" if y == yd else None, "Predicted" if x == xb else None, label_top)
     fig.savefig(out_base + ".png", dpi=600)
     fig.savefig(out_base + ".pdf")
     fig.savefig(out_base + ".svg")

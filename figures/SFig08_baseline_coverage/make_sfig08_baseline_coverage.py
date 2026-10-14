@@ -17,6 +17,7 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Rectangle
 from pyproj import Transformer
 from rasterio.features import rasterize
+from rasterio.warp import Resampling, reproject
 
 warnings.filterwarnings("ignore")
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -56,6 +57,25 @@ plt.rcParams.update({
     "xtick.color": "black", "ytick.color": "black",
     "pdf.fonttype": 42, "svg.fonttype": "none", "savefig.facecolor": "white",
 })
+
+
+DST = "ESRI:102953"
+
+
+def upright(arrays, T, crs, bounds, res=300.0):
+    l, b, r, t = bounds
+    w, h = int(np.ceil((r - l) / res)), int(np.ceil((t - b) / res))
+    fine_T = rasterio.transform.from_origin(l, t, res / 2, res / 2)
+    out = []
+    for a in arrays:
+        fine = np.zeros((2 * h, 2 * w), np.uint8)
+        reproject(np.asarray(a, np.uint8), fine, src_transform=T, src_crs=crs, dst_transform=fine_T, dst_crs=DST,
+                  resampling=Resampling.nearest)
+        blk = fine.reshape(h, 2, w, 2).transpose(0, 2, 1, 3).reshape(h, w, 4)
+        n = max(int(blk.max()), 1)
+        cnt = np.stack([(blk == v).sum(-1) for v in range(1, n + 1)], -1)
+        out.append(np.where(cnt.max(-1) > 0, cnt.argmax(-1) + 1, 0).astype(np.uint8))
+    return out, rasterio.transform.from_origin(l, t, res, res), (h, w)
 
 
 def map_gprtp(v, n):
@@ -137,6 +157,12 @@ def main():
                   for k, v in counts.items()]).to_csv(
         os.path.join(a.out, "SFig08_baseline_coverage_counts.csv"), index=False)
 
+    land = dist.to_crs(DST).geometry.union_all()
+    l, b, r, t = land.bounds
+    up, T, shape = upright(list(layers.values()), T, crs, (l - 3000, b - 3000, r + 3000, t + 3000))
+    layers = dict(zip(layers, up))
+    crs = DST
+    mask = burn([land], shape, T, all_touched=True)
     rr, cc = np.nonzero(mask)
     pad = 8
     r0, r1 = max(0, rr.min() - pad), min(shape[0], rr.max() + pad)
