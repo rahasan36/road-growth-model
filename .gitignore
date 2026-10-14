@@ -8,3 +8,12 @@ data/model_inputs/
 spatial_distribution/output_data/
 .vscode/
 spatial_distribution_python/output_data/
+data/model_outputs/
+data/model_inputs_osm2015/
+data/model_outputs_osm2015/
+data/slope_deg/
+data/osm/
+data/upgrade_sensitivity_output/
+data/urban_cluster_sensitivity_output/
+validation/output/
+reliability/output/
