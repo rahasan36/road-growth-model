@@ -103,7 +103,7 @@ function [added_road,updated_road,num_new_road, A_road_update] = make_radial_gro
 
                 end_idx = candidate_node_list{picked_cand(grow_idx)};
                 r_max_squared = max(sum((end_idx - [a1, a2]).^2,2));
-                valid_cand(grow_idx+1:end) = valid_cand(grow_idx+1:end)+sum(([A1(grow_idx+1:end,:), A2(grow_idx+1:end,:)]-[a1, a2]).^2,2)<= (factor_2)^2*r_max_squared;
+                valid_cand(grow_idx+1:end) = valid_cand(grow_idx+1:end) + (sum(([A1(grow_idx+1:end,:), A2(grow_idx+1:end,:)]-[a1, a2]).^2,2) <= (factor_2)^2*r_max_squared);
 
                 for idx=1:numel(candidate_node_list{picked_cand(grow_idx)})/2
                     x = get_next_best_cand_radial([a1, a2], end_idx(idx,:), score);

@@ -140,8 +140,7 @@ def make_radial_growth(A_road, A_road_1_5, uc_map, score, search_rad,
             r_max_squared = np.max(np.sum((end_idx.astype(float) - [a1, a2]) ** 2, axis=1))
             rest = slice(grow_idx + 1, len(picked_cand))
             d = np.sum((A12[rest] - [a1, a2]) ** 2, axis=1)
-            # MATLAB precedence: (valid + d) <= thr
-            valid_cand[grow_idx + 1:] = ((valid_cand[grow_idx + 1:] + d) <= (factor_2 ** 2) * r_max_squared).astype(float)
+            valid_cand[grow_idx + 1:] = valid_cand[grow_idx + 1:] + (d <= (factor_2 ** 2) * r_max_squared)
 
             for i in range(end_idx.shape[0]):
                 x = get_next_best_cand_radial([a1, a2], end_idx[i, :], score)

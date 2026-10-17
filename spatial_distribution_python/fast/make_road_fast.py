@@ -164,8 +164,10 @@ def make_road(input_dir, output_dir, predicted_road_amount_scenario, country_nam
         A1[A_road == rt] = 1
         if road_idx == 1:
             A1_and_high = A1.copy()
-            if len(road_types) > 1:   # one road type in the domain (e.g. BHR): no lower type, A2 stays empty
+            if len(road_types) > 1:   # one road type in the domain has no lower class to upgrade
                 A2[A_road == road_types[road_idx]] = 1
+            else:
+                A2 = None
         elif road_idx == len(road_types):
             A1_and_high[(A_road == rt) | (A_road == road_types[road_idx - 2])] = 1
             A2 = None
